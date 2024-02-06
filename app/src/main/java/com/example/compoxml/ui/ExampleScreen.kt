@@ -45,7 +45,8 @@ class ExampleScreenState(
 @Composable
 fun rememberExampleScreenState(
     scrollBehaviorInterceptor: ScrollBehaviorInterceptor = scrollBehaviorInterceptor(),
-    exitUntilCollapsedScrollBehavior: TopAppBarScrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(),
+    exitUntilCollapsedScrollBehavior: TopAppBarScrollBehavior =
+        TopAppBarDefaults.exitUntilCollapsedScrollBehavior(snapAnimationSpec = null),
 ) = remember {
     ExampleScreenState(
         scrollBehaviorInterceptor = scrollBehaviorInterceptor,
