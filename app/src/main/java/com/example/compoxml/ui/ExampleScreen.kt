@@ -28,6 +28,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -40,6 +41,7 @@ class ExampleScreenState(
     val scrollBehaviorInterceptor: ScrollBehaviorInterceptor,
     val exitUntilCollapsedScrollBehavior: TopAppBarScrollBehavior,
     val hasCollapsedHeader: State<Boolean>,
+    val headerCollapsedFraction: State<Float>,
 )
 
 @Composable
@@ -52,7 +54,11 @@ fun rememberExampleScreenState(
         scrollBehaviorInterceptor = scrollBehaviorInterceptor,
         exitUntilCollapsedScrollBehavior = exitUntilCollapsedScrollBehavior,
         hasCollapsedHeader = derivedStateOf {
-            scrollBehaviorInterceptor.state.scrollOffset.floatValue < 0
+            exitUntilCollapsedScrollBehavior.state.collapsedFraction == 1f
+//            scrollBehaviorInterceptor.state.scrollOffset.floatValue < 0 // Just for example
+        },
+        headerCollapsedFraction = derivedStateOf {
+            exitUntilCollapsedScrollBehavior.state.collapsedFraction
         }
     )
 }
@@ -63,7 +69,7 @@ fun ExampleScreen(state: ExampleScreenState = rememberExampleScreenState()) {
         modifier = Modifier
             .fillMaxSize()
             .nestedScroll(state.exitUntilCollapsedScrollBehavior.nestedScrollConnection)
-            .nestedScroll(state.scrollBehaviorInterceptor.nestedScrollConnection),
+            .nestedScroll(state.scrollBehaviorInterceptor.nestedScrollConnection), // Just for example
         topBar = {
             Header(state)
             SearchBar(state)
@@ -108,8 +114,11 @@ private fun Header(state: ExampleScreenState) {
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(144.dp),
-            color = Color.Blue,
+                .height(144.dp)
+                .background(color = Color.Blue)
+                .graphicsLayer {
+                    alpha = state.headerCollapsedFraction.value
+                },
             content = {}
         )
     }
