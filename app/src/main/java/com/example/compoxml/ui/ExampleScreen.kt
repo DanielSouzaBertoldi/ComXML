@@ -2,20 +2,22 @@
 
 package com.example.compoxml.ui
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledIconButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -30,33 +32,29 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import com.example.compoxml.ui.common.scrollbehavior.ScrollBehaviorInterceptor
-import com.example.compoxml.ui.common.scrollbehavior.scrollBehaviorInterceptor
+import com.example.compoxml.R
 import com.example.compoxml.ui.common.topbar.CustomTopBarLayout
+import com.example.compoxml.ui.common.topbar.CustomTopBarLayoutDefaults
 
 @Stable
 class ExampleScreenState(
-    val scrollBehaviorInterceptor: ScrollBehaviorInterceptor,
     val exitUntilCollapsedScrollBehavior: TopAppBarScrollBehavior,
-    val hasCollapsedHeader: State<Boolean>,
     val headerCollapsedFraction: State<Float>,
 )
 
 @Composable
 fun rememberExampleScreenState(
-    scrollBehaviorInterceptor: ScrollBehaviorInterceptor = scrollBehaviorInterceptor(),
     exitUntilCollapsedScrollBehavior: TopAppBarScrollBehavior =
         TopAppBarDefaults.exitUntilCollapsedScrollBehavior(snapAnimationSpec = null),
 ) = remember {
     ExampleScreenState(
-        scrollBehaviorInterceptor = scrollBehaviorInterceptor,
         exitUntilCollapsedScrollBehavior = exitUntilCollapsedScrollBehavior,
-        hasCollapsedHeader = derivedStateOf {
-            exitUntilCollapsedScrollBehavior.state.collapsedFraction == 1f
-//            scrollBehaviorInterceptor.state.scrollOffset.floatValue < 0 // Just for example
-        },
         headerCollapsedFraction = derivedStateOf {
             exitUntilCollapsedScrollBehavior.state.collapsedFraction
         }
@@ -68,14 +66,41 @@ fun ExampleScreen(state: ExampleScreenState = rememberExampleScreenState()) {
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
-            .nestedScroll(state.exitUntilCollapsedScrollBehavior.nestedScrollConnection)
-            .nestedScroll(state.scrollBehaviorInterceptor.nestedScrollConnection), // Just for example
+            .nestedScroll(state.exitUntilCollapsedScrollBehavior.nestedScrollConnection),
         topBar = {
             Header(state)
             SearchBar(state)
         },
-        content = { Content(paddingValues = it) }
+        content = {
+            Box {
+                BannerTopBar(state)
+                Content(paddingValues = it)
+            }
+        }
     )
+}
+
+@Composable
+private fun BannerTopBar(state: ExampleScreenState) {
+    Box(
+        modifier = Modifier.graphicsLayer {
+            alpha = 1 - (state.headerCollapsedFraction.value * 2)
+        }
+    ) {
+        Image(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(144.dp),
+            painter = painterResource(id = R.drawable.ic_launcher_background),
+            contentScale = ContentScale.FillWidth,
+            contentDescription = null,
+        )
+        FilledIconButton(
+            modifier = Modifier.padding(24.dp),
+            onClick = { /*TODO*/ }) {
+            Icon(imageVector = Icons.Default.ArrowBack, contentDescription = null)
+        }
+    }
 }
 
 @Composable
@@ -92,33 +117,44 @@ private fun Content(paddingValues: PaddingValues) {
 }
 
 @Composable
-private fun SearchBar(state: ExampleScreenState) {
-    //https://developer.android.com/jetpack/compose/animation
-    AnimatedVisibility(
-        visible = state.hasCollapsedHeader.value,
-        enter = expandVertically() + fadeIn(),
-        exit = shrinkVertically() + fadeOut()
-    ) {
-        Box(
-            modifier = Modifier
-                .height(144.dp)
-                .fillMaxWidth()
-                .background(color = Color.Red)
-        )
-    }
+private fun SearchBar(
+    state: ExampleScreenState,
+    height: Dp = 96.dp
+) {
+    Box(
+        modifier = Modifier
+            .height(height)
+            .fillMaxWidth()
+            .offset(y = -height)
+            .offset {
+                // You can manipulate the offset speed and threshold based on the
+                // headerCollapsedFraction value
+                val offset = (state.headerCollapsedFraction.value) * height.toPx()
+                IntOffset(x = 0, y = offset.toInt())
+            }
+            .background(Color.Blue),
+        content = {}
+    )
 }
 
 @Composable
 private fun Header(state: ExampleScreenState) {
-    CustomTopBarLayout(scrollBehavior = state.exitUntilCollapsedScrollBehavior) {
+    CustomTopBarLayout(
+        scrollBehavior = state.exitUntilCollapsedScrollBehavior,
+        colors = CustomTopBarLayoutDefaults.colors(
+            containerColor = Color.Transparent,
+            scrolledContainerColor = Color.Transparent,
+        ),
+    ) {
         Surface(
             modifier = Modifier
+                .padding(horizontal = 24.dp)
+                .padding(top = 120.dp, bottom = 24.dp)
                 .fillMaxWidth()
-                .height(144.dp)
-                .background(color = Color.Blue)
-                .graphicsLayer {
-                    alpha = state.headerCollapsedFraction.value
-                },
+                .height(144.dp),
+            shadowElevation = 2.dp,
+            tonalElevation = 1.dp,
+            shape = MaterialTheme.shapes.medium,
             content = {}
         )
     }
