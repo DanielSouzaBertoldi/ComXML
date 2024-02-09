@@ -9,6 +9,7 @@ import com.example.compoxml.ui.theme.CompoxmlTheme
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // enableEdgeToEdge()
         setContent {
             CompoxmlTheme {
                 ExampleScreen()
