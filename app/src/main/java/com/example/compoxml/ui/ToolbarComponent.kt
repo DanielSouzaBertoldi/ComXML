@@ -9,12 +9,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -33,6 +35,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -40,6 +43,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -56,19 +62,21 @@ fun Toolbar(
     carouselCategories: State<List<HeaderUIModel>>,
     carouselCategoryClick: (Int) -> Unit,
     setItemAsSelected: (List<HeaderUIModel>) -> Unit,
-    height: Dp = 128.dp,
 ) {
+    val statusBarHeight = WindowInsets.statusBars.getTop(LocalDensity.current)
+    var height by remember { mutableIntStateOf(10) }
+    var toolbarHeight by remember { mutableIntStateOf(0) }
     Column(
         modifier = Modifier
-            .height(height)
             .fillMaxWidth()
-            .offset(y = -height)
+            .offset(y = -(toolbarHeight.dp))
             .offset {
                 // You can manipulate the offset speed and threshold based on the
                 // headerCollapsedFraction value
-                val offset = (state.headerCollapsedFraction.value) * height.toPx()
+                val offset = (state.headerCollapsedFraction.value) * toolbarHeight.dp.toPx()
                 IntOffset(x = 0, y = offset.toInt())
             }
+            .onGloballyPositioned { toolbarHeight = it.size.height }
             .background(Color.White),
     ) {
         SearchBar()

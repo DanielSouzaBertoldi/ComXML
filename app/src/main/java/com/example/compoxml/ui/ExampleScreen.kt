@@ -3,21 +3,35 @@
 package com.example.compoxml.ui
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
@@ -26,14 +40,18 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -154,19 +172,71 @@ private fun Header(state: ExampleScreenState) {
             scrolledContainerColor = Color.Transparent,
         ),
     ) {
-        Surface(
+        MerchantStuff()
+    }
+}
+
+@Composable
+private fun MerchantStuff() {
+    Box(
+        modifier = Modifier.padding(horizontal = 24.dp).padding(top = 90.dp),
+        contentAlignment = Alignment.TopCenter,
+    ) {
+        Column(
             modifier = Modifier
-                .padding(horizontal = 24.dp)
-                .padding(top = 120.dp, bottom = 24.dp)
+                .padding(top = 32.dp)
                 .fillMaxWidth()
-                .height(144.dp),
-            shadowElevation = 2.dp,
-            tonalElevation = 1.dp,
-            shape = MaterialTheme.shapes.medium,
-            color = Color.Yellow,
-            content = {}
+                .background(Color.White, shape = RoundedCornerShape(16.dp))
+                .border(2.dp, color = Color.LightGray, shape = RoundedCornerShape(16.dp))
+                .padding(16.dp, 40.dp, 16.dp, 16.dp),
+        ) {
+            MerchantData()
+        }
+        Image(
+            modifier = Modifier
+                .size(64.dp)
+                .clip(CircleShape)
+                .border(2.dp, color = Color.LightGray, shape = CircleShape),
+            painter = painterResource(id = R.drawable.header_yeah),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
         )
     }
+}
+
+@Composable
+private fun MerchantData() {
+    Row(modifier = Modifier.fillMaxWidth()) {
+        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Text("Nome da loja")
+            Text("Categoria • 99,9 km • Mínimo R$99")
+        }
+        Spacer(modifier = Modifier.weight(1f))
+        Icon(imageVector = Icons.Filled.KeyboardArrowRight, contentDescription = null)
+    }
+    Divider(modifier = Modifier.padding(vertical = 12.dp))
+    Row(modifier = Modifier.fillMaxWidth()) {
+        Icon(
+            imageVector = Icons.Filled.Star,
+            contentDescription = null,
+        )
+        Text(text = "5,0 (999 avaliações) •")
+        Text(text = "Super")
+        Spacer(modifier = Modifier.weight(1f))
+        Icon(imageVector = Icons.Filled.KeyboardArrowRight, contentDescription = null)
+    }
+    Divider(modifier = Modifier.padding(vertical = 12.dp))
+    Row(modifier = Modifier.fillMaxWidth()) {
+        Text(text = "Padrão • Hoje, 999-999 min • R$ 99,99")
+        Spacer(modifier = Modifier.weight(1f))
+        Icon(imageVector = Icons.Filled.KeyboardArrowRight, contentDescription = null)
+    }
+}
+
+@Preview
+@Composable
+private fun MerchantStuffPreview() {
+    MerchantStuff()
 }
 
 @Composable
@@ -180,12 +250,14 @@ private fun BannerTopBar(state: ExampleScreenState) {
             modifier = Modifier
                 .fillMaxWidth()
                 .height(164.dp),
-            painter = painterResource(id = R.drawable.ic_launcher_background),
+            painter = painterResource(id = R.drawable.header_yeah),
             contentScale = ContentScale.FillWidth,
             contentDescription = null,
         )
         FilledIconButton(
-            modifier = Modifier.safeDrawingPadding().padding(24.dp),
+            modifier = Modifier
+                .safeDrawingPadding()
+                .padding(24.dp),
             onClick = { /*TODO*/ }) {
             Icon(imageVector = Icons.Default.ArrowBack, contentDescription = null)
         }
@@ -232,7 +304,8 @@ fun setItemAsSelected(
     carouselCategories: State<List<HeaderUIModel>>,
     onCarouselChange: (List<HeaderUIModel>) -> Unit,
 ) {
-    val indexInCategoriesList = carouselCategories.value.indexOfFirst { it.sectionId == sectionIdClicked }
+    val indexInCategoriesList =
+        carouselCategories.value.indexOfFirst { it.sectionId == sectionIdClicked }
     val oldList = carouselCategories.value.toMutableList().apply {
         this.forEachIndexed { index, it ->
             this[index] = it.copy(isSelected = index == indexInCategoriesList)
