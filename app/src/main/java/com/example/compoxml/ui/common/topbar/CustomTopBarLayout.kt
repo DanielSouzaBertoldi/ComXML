@@ -1,5 +1,6 @@
 package com.example.compoxml.ui.common.topbar
 
+import android.util.Log
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.AnimationState
@@ -22,7 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -48,9 +49,7 @@ fun CustomTopBarLayout(
 ) {
     // Sets the app bar's height offset to collapse the entire bar's height when content is
     // scrolled.
-    var heightOffsetLimit by remember {
-        mutableFloatStateOf(0f)
-    }
+    var heightOffsetLimit by remember { mutableStateOf(0f) }
     LaunchedEffect(heightOffsetLimit) {
         if (scrollBehavior?.state?.heightOffsetLimit != heightOffsetLimit) {
             scrollBehavior?.state?.heightOffsetLimit = heightOffsetLimit
@@ -69,6 +68,7 @@ fun CustomTopBarLayout(
         label = "animateColorAsState"
     )
 
+    // TODO: this appBarDragModifier is not needed in our usecase.
     // Set up support for resizing the top app bar when vertically dragging the bar itself.
     val appBarDragModifier = if (scrollBehavior != null && !scrollBehavior.isPinned) {
         Modifier.draggable(
@@ -100,8 +100,10 @@ fun CustomTopBarLayout(
             modifier = modifier,
             measurePolicy = { measurables, constraints ->
                 val placeable = measurables.first().measure(constraints.copy(minWidth = 0))
-                heightOffsetLimit = placeable.height.toFloat() * -1
+                heightOffsetLimit = placeable.height.toFloat() * -0.43f // TODO: why -0.43f though?
+                Log.d("COMP-SCROLL-HEIGHT-OFF", heightOffsetLimit.toString())
                 val scrollOffset = scrollBehavior?.state?.heightOffset ?: 0f
+                Log.d("COMP-SCROLL-SC-OFF", scrollOffset.toString())
                 val height = placeable.height.toFloat() + scrollOffset
                 val layoutHeight = height.roundToInt()
                 layout(constraints.maxWidth, layoutHeight) {

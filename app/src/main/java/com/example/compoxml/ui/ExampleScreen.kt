@@ -2,13 +2,13 @@
 
 package com.example.compoxml.ui
 
+import android.app.Activity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -28,9 +28,7 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
@@ -48,12 +46,12 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.view.WindowCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.RecyclerView
@@ -94,6 +92,9 @@ private val listAdapter = MockAdapter()
 @Composable
 fun ExampleScreen(state: ExampleScreenState = rememberExampleScreenState()) {
     val context = LocalContext.current
+
+    // TODO: should we manually set the status bar icon colors to black?
+    WindowCompat.getInsetsController((LocalContext.current as Activity).window, LocalView.current).isAppearanceLightStatusBars = true
 
     // Fetches List of Carousel Headers (e.g. "Category 1", "Category 2", ...)
     val carouselCategories = remember { mutableStateOf(fetchCarouselHeadersFromList()) }
@@ -179,7 +180,9 @@ private fun Header(state: ExampleScreenState) {
 @Composable
 private fun MerchantStuff() {
     Box(
-        modifier = Modifier.padding(horizontal = 24.dp).padding(top = 90.dp),
+        modifier = Modifier
+            .padding(horizontal = 24.dp)
+            .padding(top = 100.dp),
         contentAlignment = Alignment.TopCenter,
     ) {
         Column(
