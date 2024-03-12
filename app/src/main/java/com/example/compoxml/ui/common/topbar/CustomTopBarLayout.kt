@@ -1,6 +1,5 @@
 package com.example.compoxml.ui.common.topbar
 
-import android.util.Log
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.AnimationState
@@ -8,7 +7,6 @@ import androidx.compose.animation.core.DecayAnimationSpec
 import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDecay
-import androidx.compose.animation.core.animateTo
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
@@ -68,7 +66,6 @@ fun CustomTopBarLayout(
         label = "animateColorAsState"
     )
 
-    // TODO: this appBarDragModifier is not needed in our usecase.
     // Set up support for resizing the top app bar when vertically dragging the bar itself.
     val appBarDragModifier = if (scrollBehavior != null && !scrollBehavior.isPinned) {
         Modifier.draggable(
@@ -100,10 +97,8 @@ fun CustomTopBarLayout(
             modifier = modifier,
             measurePolicy = { measurables, constraints ->
                 val placeable = measurables.first().measure(constraints.copy(minWidth = 0))
-                heightOffsetLimit = placeable.height.toFloat() * -0.43f // TODO: why -0.43f though?
-                Log.d("COMP-SCROLL-HEIGHT-OFF", heightOffsetLimit.toString())
+                heightOffsetLimit = placeable.height.toFloat() * -0.5f // TODO: why -0.43f though?
                 val scrollOffset = scrollBehavior?.state?.heightOffset ?: 0f
-                Log.d("COMP-SCROLL-SC-OFF", scrollOffset.toString())
                 val height = placeable.height.toFloat() + scrollOffset
                 val layoutHeight = height.roundToInt()
                 layout(constraints.maxWidth, layoutHeight) {
@@ -148,21 +143,22 @@ suspend fun settleAppBar(
                 if (abs(delta - consumed) > 0.5f) this.cancelAnimation()
             }
     }
+    // TODO: we don't need to snap anything.
     // Snap if animation specs were provided.
-    if (snapAnimationSpec != null) {
-        if (state.heightOffset < 0 &&
-            state.heightOffset > state.heightOffsetLimit
-        ) {
-            AnimationState(initialValue = state.heightOffset).animateTo(
-                if (state.collapsedFraction < 0.5f) {
-                    0f
-                } else {
-                    state.heightOffsetLimit
-                },
-                animationSpec = snapAnimationSpec
-            ) { state.heightOffset = value }
-        }
-    }
+//    if (snapAnimationSpec != null) {
+//        if (state.heightOffset < 0 &&
+//            state.heightOffset > state.heightOffsetLimit
+//        ) {
+//            AnimationState(initialValue = state.heightOffset).animateTo(
+//                if (state.collapsedFraction < 0.5f) {
+//                    0f
+//                } else {
+//                    state.heightOffsetLimit
+//                },
+//                animationSpec = snapAnimationSpec
+//            ) { state.heightOffset = value }
+//        }
+//    }
 
     return Velocity(0f, remainingVelocity)
 }

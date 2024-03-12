@@ -89,6 +89,7 @@ fun rememberExampleScreenState(
 private val listMock = createMock()
 private val listAdapter = MockAdapter()
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExampleScreen(state: ExampleScreenState = rememberExampleScreenState()) {
     val context = LocalContext.current
